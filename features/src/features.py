@@ -1,7 +1,8 @@
-import pika
+import pika                 # библиотека для RabbitMQ
 import numpy as np
 import json
 from sklearn.datasets import load_diabetes
+import time
 
 
 # Создаём бесконечный цикл для отправки сообщений в очередь
@@ -33,6 +34,8 @@ while True:
         print('Сообщение с вектором признаков отправлено в очередь')
         # Закрываем подключение
         connection.close()
+
+        time.sleep(10)  # Приостановка программы на 3 секунды
 
     except:
         print('Не удалось подключиться к очереди')
