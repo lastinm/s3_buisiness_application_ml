@@ -3,6 +3,7 @@ import numpy as np
 import json
 from sklearn.datasets import load_diabetes
 import time
+from datetime import datetime
 
 
 # Создаём бесконечный цикл для отправки сообщений в очередь
@@ -16,15 +17,26 @@ while True:
         # Создаём подключение по адресу rabbitmq:
         connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
         channel = connection.channel()
+
         # Создаём очередь y_true
         channel.queue_declare(queue='y_true')
         # Создаём очередь features
         channel.queue_declare(queue='features')
+        
+        # Подготавливаем сообщение в очередь y_true
+        message_id = datetime.timestamp(datetime.now())
+        message_y_true = {
+            'id': message_id,
+            'body': y[random_row]
+            } 
+
         # Публикуем сообщение в очередь y_true
         channel.basic_publish(exchange='',
             routing_key='y_true',
-        
-        body=json.dumps(y[random_row]))
+            # Учебный пример
+            #body=json.dumps(y[random_row]))
+            # Моя вставка
+            body=json.dumps(message_y_true))
         print('Сообщение с правильным ответом отправлено в очередь')
 
         # Публикуем сообщение в очередь features
@@ -32,6 +44,12 @@ while True:
             routing_key='features',
             body=json.dumps(list(X[random_row])))
         print('Сообщение с вектором признаков отправлено в очередь')
+
+     
+
+
+
+
         # Закрываем подключение
         connection.close()
 
